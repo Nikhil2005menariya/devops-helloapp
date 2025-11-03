@@ -1,0 +1,30 @@
+---
+- name: Deploy Flask App on EC2
+  hosts: flask_server
+  become: yes
+  tasks:
+
+    - name: Ensure Docker is installed
+      yum:
+        name: docker
+        state: present
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Pull latest Flask app image
+      command: docker pull nikhilmenariya/flask-helloapp:latest
+
+    - name: Stop existing container (if any)
+      ignore_errors: yes
+      command: docker stop flask_app_prod
+
+    - name: Remove existing container (if any)
+      ignore_errors: yes
+      command: docker rm flask_app_prod
+
+    - name: Run new Flask container
+      command: docker run -d -p 5001:5001 --name flask_app_prod nikhilmenariya/flask-helloapp:latest

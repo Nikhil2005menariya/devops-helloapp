@@ -1,0 +1,21 @@
+---
+- name: Setup Monitoring Stack (Grafana + Graphite)
+  hosts: flask_server
+  become: yes
+  tasks:
+    - name: Install Docker
+      yum:
+        name: docker
+        state: present
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Run Graphite container
+      command: docker run -d --name graphite -p 8080:80 -p 2003:2003 graphiteapp/graphite-statsd
+
+    - name: Run Grafana container
+      command: docker run -d --name grafana -p 3000:3000 grafana/grafana
